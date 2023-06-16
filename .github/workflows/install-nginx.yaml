@@ -17,4 +17,4 @@ jobs:
     - name: Install NGINX
       run: |
         ssh root@${{ secrets.AKAMAI_INSTANCE_IP_ADDRESS }} sudo apt update
-        ssh root@${{ secrets.AKAMAI_INSTANCE_IP_ADDRESS }} sudo apt install nginx
+        ssh root@${{ secrets.AKAMAI_INSTANCE_IP_ADDRESS }} sudo apt install nginx -y
