@@ -1,0 +1,19 @@
+name: Install NGINX
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Configure the SSH Private Key Secret
+      run: |
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+    - name: Install NGINX
+      run: |
+        ssh root@${{ secrets.AKAMAI_INSTANCE_IP_ADDRESS }} sudo apt update
+        ssh root@${{ secrets.AKAMAI_INSTANCE_IP_ADDRESS }} sudo apt 
+install nginx
