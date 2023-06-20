@@ -33,11 +33,12 @@ jobs:
         mkdir -p ./devops/ansible/
         cat <<EOF > ./devops/ansible/ansible.cfg
         [defaults]
+        ansible_python_interpreter = '/usr/bin/python3'
         remote_user = root
         private_key_file = ~/.ssh/id_rsa
         inventory = ./devops/ansible/inventory.ini
         host_key_checking = False
         EOF
-    - name: Run any Ansible Playbook
+    - name: Ping Ansible Hosts
       run: |
-        ansible all -m ping
+       cd ./devops/ansible/ && ansible all -m ping
