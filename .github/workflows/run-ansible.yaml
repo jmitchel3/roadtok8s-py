@@ -25,7 +25,7 @@ jobs:
       run: |
         mkdir -p ./devops/ansible/
         cat <<EOF > ./devops/ansible/inventory.ini
-        [my-host-group]
+        [my_host_group]
         ${{ secrets.AKAMAI_INSTANCE_IP_ADDRESS }}
         EOF
     - name: Create a Ansible Default Configuration File
@@ -34,8 +34,8 @@ jobs:
         cat <<EOF > ./devops/ansible/ansible.cfg
         [defaults]
         ansible_python_interpreter = '/usr/bin/python3'
+        ansible_ssh_private_key_file = ~/.ssh/id_rsa
         remote_user = root
-        private_key_file = ~/.ssh/id_rsa
         inventory = ./inventory.ini
         host_key_checking = False
         EOF
