@@ -21,13 +21,12 @@ jobs:
         mkdir -p ~/.ssh/
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
-    - name: Create an Ansible Inventory File for our remote host
+    - name: Ansible Inventory File for Remote host
       run: |
         mkdir -p ./devops/ansible/
-        cat <<EOF > ./devops/ansible/inventory.ini
-        [my_host_group]
-        ${{ secrets.AKAMAI_INSTANCE_IP_ADDRESS }}
-        EOF
+        export INVENTORY_FILE=./devops/ansible/inventory.ini
+        echo "[my_host_group]" > $INVENTORY_FILE
+        echo "${{ secrets.AKAMAI_INSTANCE_IP_ADDRESS }}" >> $INVENTORY_FILE
     - name: Create a Ansible Default Configuration File
       run: |
         mkdir -p ./devops/ansible/
