@@ -43,12 +43,12 @@
         executable: /opt/venv/bin/pip
     - name: Configure gunicorn and uvicorn with supervisor
       copy:
-        src: '{{ playbook_dir }}../../conf/supervisor.conf'
+        src: '{{ playbook_dir }}/../../conf/supervisor.conf'
         dest: /etc/supervisor/conf.d/roadtok8s-py.conf
       notify: reload supervisor
     - name: Configure nginx
       copy:
-        src: '{{ playbook_dir }}../../conf/nginx.conf'
+        src: '{{ playbook_dir }}/../../conf/nginx.conf'
         dest: /etc/nginx/sites-available/roadtok8s-py
       notify: restart nginx
     - name: Enable nginx site
