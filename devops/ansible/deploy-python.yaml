@@ -70,6 +70,7 @@
         - supervisorctl reread
         - supervisorctl update
         - supervisorctl restart roadtok8s-py
+      notify: restart nginx
     - name: restart nginx
       systemd:
         name: nginx
