@@ -17,7 +17,7 @@ jobs:
     - name: Build the container
       run: |
         docker build -f Dockerfile \
-          -t "$DH_USER/$DH_REPO:latest" \
+          -t "$DH_USER/$REPO:latest" \
           -t "$DH_USER/$REPO:${{ github.sha }}" \
           .
     - name: Push the container images
