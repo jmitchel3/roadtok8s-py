@@ -40,12 +40,11 @@ jobs:
         echo "MY_SECRET_KEY=${{ secrets.MY_SECRET_KEY }}" >> .env
         echo "API_ENDPOINT=${{ secrets.API_ENDPOINT }}" >> .env
 
-    - name: Install SSH key
+    - name: Implement the Private SSH Key
       run: |
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
-        chmod 600 private_key.pem
-        eval $(ssh-agent -s)
-        ssh-add private_key.pem
+        mkdir -p ~/.ssh/
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
 
     - name: Copy .env file to the VM
       run: |
