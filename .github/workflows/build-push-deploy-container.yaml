@@ -24,16 +24,16 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    # - name: Build the Docker image
-    #   run: |
-    #     docker build -f Dockerfile \
-    #       -t "$DH_USER/$REPO:latest" \
-    #       -t "$DH_USER/$REPO:${{ github.sha }}" \
-    #       .
+    - name: Build the Docker image
+      run: |
+        docker build -f Dockerfile \
+          -t "$DH_USER/$REPO:latest" \
+          -t "$DH_USER/$REPO:${{ github.sha }}" \
+          .
 
-    # - name: Push the Docker image to Docker Hub
-    #   run: |
-    #     docker push "$DH_USER/$REPO" --all-tags
+    - name: Push the Docker image to Docker Hub
+      run: |
+        docker push "$DH_USER/$REPO" --all-tags
 
     - name: Create .env file
       run: |
