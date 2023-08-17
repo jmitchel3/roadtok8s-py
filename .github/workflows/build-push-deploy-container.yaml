@@ -24,16 +24,16 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Build the Docker image
-      run: |
-        docker build -f Dockerfile \
-          -t "$DH_USER/$REPO:latest" \
-          -t "$DH_USER/$REPO:${{ github.sha }}" \
-          .
+    # - name: Build the Docker image
+    #   run: |
+    #     docker build -f Dockerfile \
+    #       -t "$DH_USER/$REPO:latest" \
+    #       -t "$DH_USER/$REPO:${{ github.sha }}" \
+    #       .
 
-    - name: Push the Docker image to Docker Hub
-      run: |
-        docker push "$DH_USER/$REPO" --all-tags
+    # - name: Push the Docker image to Docker Hub
+    #   run: |
+    #     docker push "$DH_USER/$REPO" --all-tags
 
     - name: Create .env file
       run: |
@@ -49,8 +49,8 @@ jobs:
     - name: Copy .env and compose.yaml to VM
       run: |
         ssh $SSH_OPTS $REMOTE mkdir -p $REMOTE_APP_DIR
-        scp $SSH_OPTS .env $REMOTE:$REMOTE_APP_DIR
-        scp $SSH_OPTS compose.prod.yaml $REMOTE:$REMOTE_APP_DIR
+        scp $SSH_OPTS .env $REMOTE:$REMOTE_APP_DIR/.env
+        scp $SSH_OPTS compose.prod.yaml $REMOTE:$REMOTE_APP_DIR/compose.yaml
 
     - name: Ensure Docker and Docker Compose is installed on VM
       run: |
@@ -68,8 +68,8 @@ jobs:
       run: |
         ssh $SSH_OPTS $REMOTE << EOF
         cd $REMOTE_APP_DIR
-        docker-compose -f compose.prod.yaml pull
-        docker-compose -f compose.prod.yaml up -d
+        docker-compose -f compose.yaml pull
+        docker-compose -f compose.yaml up -d
         EOF
 
     - name: Clean up .env file
