@@ -1,0 +1,17 @@
+services:
+  web:
+    image: codingforentrepreneurs/rk8s-py:${TAG:-latest}
+    build: 
+      context: .
+      dockerfile: Dockerfile
+      tags:
+        - "codingforentrepreneurs/rk8s-py:${TAG:-latest}"
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+    volumes:
+      - mywebdata:/app/data
+
+volumes:
+  mywebdata:

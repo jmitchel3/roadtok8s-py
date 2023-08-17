@@ -1,0 +1,81 @@
+name: Build, Push & Deploy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      DH_USER: ${{ secrets.DOCKERHUB_USERNAME }}
+      REPO: ${{ secrets.DOCKERHUB_REPO }}
+      SSH_OPTS: '-o StrictHostKeyChecking=no'
+      REMOTE: 'root@${{ secrets.AKAMAI_INSTANCE_IP_ADDRESS }}'
+      REMOTE_APP_DIR: '/opt/app'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build the Docker image
+      run: |
+        docker build -f Dockerfile \
+          -t "$DH_USER/$REPO:latest" \
+          -t "$DH_USER/$REPO:${{ github.sha }}" \
+          .
+
+    - name: Push the Docker image to Docker Hub
+      run: |
+        docker push "$DH_USER/$REPO" --all-tags
+
+    - name: Create .env file
+      run: |
+        echo "MY_SECRET_KEY=${{ secrets.MY_SECRET_KEY }}" >> .env
+        echo "API_ENDPOINT=${{ secrets.API_ENDPOINT }}" >> .env
+
+    - name: Install SSH key
+      run: |
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
+        chmod 600 private_key.pem
+        eval $(ssh-agent -s)
+        ssh-add private_key.pem
+
+    - name: Copy .env file to the VM
+      run: |
+        scp $SSH_OPTS .env $REMOTE:$REMOTE_APP_DIR
+
+    - name: Ensure Docker and Docker Compose is installed on VM
+      run: |
+        ssh $SSH_OPTS $REMOTE '
+          if ! command -v docker &> /dev/null; then
+            curl -fsSL https://get.docker.com -o get-docker.sh
+            sudo sh get-docker.sh
+            rm get-docker.sh
+            # install Docker Compose
+            sudo python3 -m pip install pip docker-compose --upgrade
+          fi
+        '
+
+    - name: Copy docker-compose.yml to VM
+      run: |
+        scp $SSH_OPTS compose.prod.yaml $REMOTE:$REMOTE_APP_DIR
+
+    - name: Run docker-compose up on VM
+      run: |
+        ssh $SSH_OPTS $REMOTE << EOF
+        cd $REMOTE_APP_DIR
+        docker-compose -f compose.prod.yaml up -d
+        EOF
+
+    - name: Clean up .env file
+      run: rm .env
+
+    - name: Clean up SSH private key
+      run: rm private_key.pem
