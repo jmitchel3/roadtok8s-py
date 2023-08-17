@@ -60,16 +60,19 @@ jobs:
             sudo sh get-docker.sh
             rm get-docker.sh
             # install Docker Compose
-            sudo python3 -m pip install pip docker-compose --upgrade
+            sudo apt-get update
+            sudo apt-get install docker-compose-plugin
           fi
         EOF
   
-    - name: Run docker-compose pull and up on VM
+    - name: Run Docker Compose
       run: |
         ssh $SSH_OPTS $REMOTE << EOF
         cd $REMOTE_APP_DIR
-        docker-compose -f compose.yaml pull
-        docker-compose -f compose.yaml up -d
+        # update images
+        docker compose -f compose.yaml pull
+        # run containers
+        docker compose -f compose.yaml up -d
         EOF
 
     - name: Clean up .env file
