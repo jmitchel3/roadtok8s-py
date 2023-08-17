@@ -46,13 +46,15 @@ jobs:
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
 
-    - name: Copy .env file to the VM
+    - name: Copy .env and compose.yaml to VM
       run: |
+        ssh $SSH_OPTS $REMOTE mkdir -p $REMOTE_APP_DIR
         scp $SSH_OPTS .env $REMOTE:$REMOTE_APP_DIR
+        scp $SSH_OPTS compose.prod.yaml $REMOTE:$REMOTE_APP_DIR
 
     - name: Ensure Docker and Docker Compose is installed on VM
       run: |
-        ssh $SSH_OPTS $REMOTE '
+        ssh $SSH_OPTS $REMOTE << EOF
           if ! command -v docker &> /dev/null; then
             curl -fsSL https://get.docker.com -o get-docker.sh
             sudo sh get-docker.sh
@@ -60,16 +62,13 @@ jobs:
             # install Docker Compose
             sudo python3 -m pip install pip docker-compose --upgrade
           fi
-        '
-
-    - name: Copy docker-compose.yml to VM
-      run: |
-        scp $SSH_OPTS compose.prod.yaml $REMOTE:$REMOTE_APP_DIR
-
-    - name: Run docker-compose up on VM
+        EOF
+  
+    - name: Run docker-compose pull and up on VM
       run: |
         ssh $SSH_OPTS $REMOTE << EOF
         cd $REMOTE_APP_DIR
+        docker-compose -f compose.prod.yaml pull
         docker-compose -f compose.prod.yaml up -d
         EOF
 
