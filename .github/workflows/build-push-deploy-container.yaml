@@ -62,18 +62,18 @@ jobs:
       run: |
         scp $SSH_OPTS .env $REMOTE:$REMOTE_APP_DIR/.env
         scp $SSH_OPTS compose.prod.yaml $REMOTE:$REMOTE_APP_DIR/compose.yaml
-    - name: Pull updated images and run containers
+    - name: Pull updated images
       run: |
         ssh $SSH_OPTS $REMOTE << EOF
           cd $REMOTE_APP_DIR
-          docker compose -f compose.yaml pull
+          docker compose pull
         EOF
     - name: Run Docker Compose
       run: |
         ssh $SSH_OPTS $REMOTE << EOF
           cd $REMOTE_APP_DIR
           # run containers
-          docker compose -f compose.yaml up -d
+          docker compose up -d
         EOF
     - name: Clean up .env file
       run: rm .env
